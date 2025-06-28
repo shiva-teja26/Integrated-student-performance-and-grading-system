@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Smooth transition for dark mode */
+        .transition-theme {
+            transition: background-color 0.3s, color 0.3s;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-theme">
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-1/5 h-screen bg-gray-200 dark:bg-gray-800 p-4">
+            <h2 class="text-lg font-bold mb-4">Navigation</h2>
+            <nav>
+                <a href="/" class="block p-2 rounded hover:bg-gray-300 dark:hover:bg-gray-700">Home</a>
+                <a href="/performance" class="block p-2 rounded hover:bg-gray-300 dark:hover:bg-gray-700">Performance Visualization</a>
+                <a href="/add" class="block p-2 rounded hover:bg-gray-300 dark:hover:bg-gray-700">Add Student</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="w-4/5 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold">Student Performance Management</h1>
+                
+                <!-- Dark Mode Toggle -->
+                <div class="flex items-center">
+                    <span class="mr-2">Light</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="themeToggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:bg-blue-600"></div>
+                    </label>
+                    <span class="ml-2">Dark</span>
+                </div>
+            </div>
+
+            <!-- Student Records Table -->
+            <h2 class="text-xl font-semibold mb-4">Student Records</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                    <thead>
+                        <tr class="bg-gray-200 dark:bg-gray-700">
+                            <th class="p-2 border">Name</th>
+                            <th class="p-2 border">Roll</th>
+                            <th class="p-2 border">Gender</th>
+                            <th class="p-2 border">Maths</th>
+                            <th class="p-2 border">Physics</th>
+                            <th class="p-2 border">Chemistry</th>
+                            <th class="p-2 border">Grade</th>
+                            <th class="p-2 border">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <td class="p-2 border">{{ row[0] }}</td>
+                            <td class="p-2 border">{{ row[1] }}</td>
+                            <td class="p-2 border">{{ row[2] }}</td>
+                            <td class="p-2 border">{{ row[3] }}</td>
+                            <td class="p-2 border">{{ row[4] }}</td>
+                            <td class="p-2 border">{{ row[5] }}</td>
+                            <td class="p-2 border">{{ row[6] }}</td>
+                            <td class="p-2 border">
+                                <a href="{{ url_for('edit_student', roll=row[1]) }}" class="text-blue-500 hover:underline">Edit</a> |
+                                <a href="{{ url_for('delete_student', roll=row[1]) }}" class="text-red-500 hover:underline" onclick="return confirm('Are you sure?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript for Dark Mode -->
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // Load saved theme
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+            body.classList.add('dark');
+            themeToggle.checked = true;
+        }
+
+        // Toggle Theme
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.classList.add('dark');
+                localStorage.setItem('dark-mode', 'enabled');
+            } else {
+                body.classList.remove('dark');
+                localStorage.setItem('dark-mode', 'disabled');
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function toggleStudentFields() {
+            const role = document.getElementById('role').value;
+            const studentFields = document.getElementById('student-fields');
+            studentFields.classList.toggle('hidden', role !== 'student');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+
+<div class="bg-white w-full max-w-md p-8 rounded-xl shadow-md">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Create an Account</h2>
+
+    <form method="POST" class="space-y-5">
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+            <input type="text" name="username" id="username" required
+                   class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password" id="password" required
+                   class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+            <label for="role" class="block text-sm font-medium text-gray-700">Select Role</label>
+            <select name="role" id="role" required onchange="toggleStudentFields()"
+                    class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled selected>Select Role</option>
+                <option value="admin">Admin</option>
+                <option value="teacher">Teacher</option>
+                <option value="student">Student</option>
+            </select>
+        </div>
+
+        <!-- Student-specific fields -->
+        <div id="student-fields" class="hidden space-y-4">
+            <div>
+                <label for="roll" class="block text-sm font-medium text-gray-700">Roll Number</label>
+                <input type="number" name="roll" id="roll"
+                       class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                <select name="gender" id="gender"
+                        class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+            Sign Up
+        </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-600 mt-6">
+        Already have an account?
+        <a href="{{ url_for('login') }}" class="text-blue-600 hover:underline font-medium">Log in</a>
+    </p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .hover-lift:hover { transform: translateY(-2px); transition: all 0.2s ease; }
+    .sidebar-link:hover { background-color: #f1f5f9; }
+    .sidebar-link.active { background-color: #e2e8f0; border-left: 3px solid #3b82f6; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-blue-600 text-white rounded-lg">
+          <i class="fas fa-chalkboard-teacher text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Teacher Dashboard</h1>
+          <p class="text-sm text-gray-500">Integrated Student Performance and Grading System</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="relative hidden sm:block">
+          <input type="text" id="searchInput" placeholder="Search students..." 
+                 class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+        </div>
+        <div class="flex items-center bg-gray-100 px-4 py-2 rounded-lg">
+          <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+            <span class="text-white font-medium text-sm">{{ username[0]|upper }}</span>
+          </div>
+          <div>
+            <span class="text-sm font-medium text-gray-700">{{ username }}</span>
+            <div class="text-xs text-gray-500">Teacher</div>
+          </div>
+        </div>
+        <button onclick="toggleMenu()" class="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-white shadow-sm hidden md:block border-r">
+      <div class="p-6 text-center border-b">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-chalkboard-teacher text-blue-600 text-xl"></i>
+        </div>
+        <p class="font-semibold text-gray-800">{{ username }}</p>
+        <p class="text-sm text-gray-500">Teacher Portal</p>
+      </div>
+      
+      <nav class="p-4">
+        <div class="space-y-2">
+          <a href="{{ url_for('teacher_dashboard') }}" class="sidebar-link active flex items-center px-4 py-3 rounded-lg text-gray-700 font-medium">
+            <i class="fas fa-home w-5 mr-3"></i> Dashboard
+          </a>
+          <a href="{{ url_for('performance_visualization') }}" class="sidebar-link flex items-center px-4 py-3 rounded-lg text-gray-700">
+            <i class="fas fa-chart-bar w-5 mr-3"></i> Student Analytics
+          </a>
+          <a href="{{ url_for('exams') }}" class="sidebar-link flex items-center px-4 py-3 rounded-lg text-gray-700">
+            <i class="fas fa-file-alt w-5 mr-3"></i> Exam Management
+          </a>
+        </div>
+        
+        <hr class="my-6 border-gray-200">
+        
+        <a href="{{ url_for('logout') }}" class="sidebar-link flex items-center px-4 py-3 rounded-lg text-red-600 hover:bg-red-50">
+          <i class="fas fa-sign-out-alt w-5 mr-3"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black bg-opacity-50" onclick="toggleMenu()"></div>
+      <div class="absolute left-0 top-0 w-64 h-full bg-white shadow-lg">
+        <div class="p-6 text-center border-b">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-chalkboard-teacher text-blue-600 text-xl"></i>
+          </div>
+          <p class="font-semibold text-gray-800">{{ username }}</p>
+          <p class="text-sm text-gray-500">Teacher</p>
+        </div>
+        <nav class="p-4">
+          <div class="space-y-2">
+            <a href="{{ url_for('teacher_dashboard') }}" class="flex items-center px-4 py-3 bg-gray-100 text-gray-800 rounded-lg">
+              <i class="fas fa-home w-5 mr-3"></i> Dashboard
+            </a>
+            <a href="{{ url_for('performance_visualization') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+              <i class="fas fa-chart-bar w-5 mr-3"></i> Analytics
+            </a>
+            <a href="{{ url_for('exams') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+              <i class="fas fa-file-alt w-5 mr-3"></i> Exams
+            </a>
+          </div>
+          <hr class="my-6 border-gray-200">
+          <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+            <i class="fas fa-sign-out-alt w-5 mr-3"></i> Logout
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="mb-4 p-4 rounded-lg {{ 'bg-green-50 text-green-800 border border-green-200' if category == 'success' else 'bg-yellow-50 text-yellow-800 border border-yellow-200' if category == 'warning' else 'bg-red-50 text-red-800 border border-red-200' }}">
+              <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' if category == 'warning' else 'fa-times-circle' }} mr-2"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Quick Stats Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-6 border hover-lift">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500 font-medium">Total Students</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ students|length }}</h3>
+            </div>
+            <div class="p-3 bg-blue-100 text-blue-600 rounded-lg">
+              <i class="fas fa-users text-lg"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border hover-lift">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500 font-medium">Class Average</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ (students|sum(attribute='cgpa') / students|length)|round(2) if students else '0.00' }}</h3>
+            </div>
+            <div class="p-3 bg-green-100 text-green-600 rounded-lg">
+              <i class="fas fa-chart-line text-lg"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border hover-lift">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500 font-medium">Top Performers</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ students|selectattr('cgpa', '>=', 75)|list|length }}</h3>
+            </div>
+            <div class="p-3 bg-yellow-100 text-yellow-600 rounded-lg">
+              <i class="fas fa-trophy text-lg"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border hover-lift">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500 font-medium">Need Attention</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ students|selectattr('backlogs', '>', 0)|list|length }}</h3>
+            </div>
+            <div class="p-3 bg-red-100 text-red-600 rounded-lg">
+              <i class="fas fa-exclamation-triangle text-lg"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Filter Buttons -->
+      <div class="flex flex-wrap gap-3 mb-6">
+        <button onclick="filterStudents('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+          <i class="fas fa-users mr-2"></i>All Students
+        </button>
+        <button onclick="filterStudents('top')" class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition">
+          <i class="fas fa-star mr-2"></i>Top Performers
+        </button>
+        <button onclick="filterStudents('attention')" class="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition">
+          <i class="fas fa-exclamation-circle mr-2"></i>Need Help
+        </button>
+        <a href="{{ url_for('performance_visualization') }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition">
+          <i class="fas fa-chart-bar mr-2"></i>Analytics
+        </a>
+      </div>
+
+      <!-- Student Performance Overview -->
+      <div class="bg-white rounded-lg shadow-sm border">
+        <div class="p-6 border-b">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-gray-900">
+              <i class="fas fa-user-graduate mr-2 text-blue-600"></i>Student Performance Overview
+            </h2>
+            <select id="semesterFilter" onchange="filterBySemester()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+              <option value="">All Semesters</option>
+              <option value="1-1">Semester 1-1</option>
+              <option value="1-2">Semester 1-2</option>
+              <option value="2-1">Semester 2-1</option>
+              <option value="2-2">Semester 2-2</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          {% if students %}
+            <div id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {% for student in students %}
+              <div class="student-card bg-white rounded-lg p-4 border-2 hover:border-blue-200 hover:shadow-md transition-all" 
+                   data-name="{{ student.name.lower() }}" 
+                   data-roll="{{ student.roll }}"
+                   data-cgpa="{{ student.cgpa }}"
+                   data-backlogs="{{ student.backlogs }}">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-{{ 'green' if student.cgpa >= 70 else 'yellow' if student.cgpa >= 50 else 'red' }}-100 text-{{ 'green' if student.cgpa >= 70 else 'yellow' if student.cgpa >= 50 else 'red' }}-600 rounded-full flex items-center justify-center font-semibold text-sm">
+                      {{ student.cgpa }}
+                    </div>
+                    <div>
+                      <h3 class="font-semibold text-gray-900">{{ student.name }}</h3>
+                      <p class="text-sm text-gray-500">Roll: {{ student.roll }}</p>
+                    </div>
+                  </div>
+                  {% if student.backlogs > 0 %}
+                  <div class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs font-medium">
+                    {{ student.backlogs }} backlogs
+                  </div>
+                  {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs text-gray-500">Semester Progress</span>
+                    <span class="text-xs text-gray-600">{{ student.sgpas|length }} sem.</span>
+                  </div>
+                  <div class="flex space-x-1">
+                    {% for semester, sgpa in student.sgpas.items() %}
+                    <div class="flex-1 h-2 bg-{{ 'green' if sgpa >= 70 else 'yellow' if sgpa >= 50 else 'red' }}-400 rounded" title="Sem {{ semester }}: {{ sgpa }}"></div>
+                    {% endfor %}
+                  </div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                  <div class="text-sm text-gray-600">CGPA: {{ student.cgpa }}%</div>
+                  <div class="flex space-x-2">
+                    <a href="{{ url_for('edit_student', roll=student.roll) }}" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition">
+                      Edit
+                    </a>
+                    <button onclick="viewStudentDetails('{{ student.name }}', {{ student.roll }})" class="px-3 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700 transition">
+                      Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-12">
+              <div class="p-4 bg-gray-100 rounded-full inline-block mb-4">
+                <i class="fas fa-users text-2xl text-gray-400"></i>
+              </div>
+              <p class="text-gray-500 text-lg mb-2">No student records available</p>
+              <p class="text-sm text-gray-400">Students will appear here once they are added to the system</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Student Details Modal -->
+  <div id="studentModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeModal()"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl w-11/12 max-w-md">
+      <div id="modalContent" class="p-6">
+        <!-- Content will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    }
+    
+    function filterStudents(type) {
+      const cards = document.querySelectorAll('.student-card');
+      cards.forEach(card => {
+        const cgpa = parseFloat(card.dataset.cgpa);
+        const backlogs = parseInt(card.dataset.backlogs);
+        let show = true;
+        
+        switch(type) {
+          case 'top': show = cgpa >= 75; break;
+          case 'attention': show = backlogs > 0; break;
+          case 'all': default: show = true;
+        }
+        
+        card.style.display = show ? 'block' : 'none';
+      });
+    }
+    
+    function filterBySemester() {
+      const semester = document.getElementById('semesterFilter').value;
+      console.log('Filtering by semester:', semester);
+    }
+    
+    function viewStudentDetails(name, roll) {
+      document.getElementById('modalContent').innerHTML = `
+        <div class="text-center">
+          <div class="p-3 bg-blue-100 rounded-full inline-block mb-4">
+            <i class="fas fa-user-graduate text-xl text-blue-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-gray-900 mb-2">${name}</h2>
+          <p class="text-gray-600 mb-4">Roll Number: ${roll}</p>
+          <div class="space-y-2">
+            <a href="/performance_visualization" class="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              View Performance Chart
+            </a>
+            <a href="/edit_student/${roll}" class="block w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+              Edit Student
+            </a>
+            <button onclick="closeModal()" class="block w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
+              Close
+            </button>
+          </div>
+        </div>
+      `;
+      document.getElementById('studentModal').classList.remove('hidden');
+    }
+    
+    function closeModal() {
+      document.getElementById('studentModal').classList.add('hidden');
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const cards = document.querySelectorAll('.student-card');
+      
+      cards.forEach(card => {
+        const name = card.dataset.name;
+        const roll = card.dataset.roll;
+        const matches = name.includes(searchTerm) || roll.includes(searchTerm);
+        card.style.display = matches ? 'block' : 'none';
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Teacher Dashboard loaded successfully');
+    });
+  </script>
+</body>
+</html>

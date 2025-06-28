@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Student Performance and Grading System - Login</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4299e1 0%, #7f5af0 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .role-badge.admin {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #c53030;
+        }
+
+        .role-badge.faculty {
+            background: linear-gradient(135deg, #bee3f8, #90cdf4);
+            color: #2c5282;
+        }
+
+        .role-badge.student {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            color: #276749;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #7f5af0;
+            box-shadow: 0 0 0 3px rgba(127, 90, 240, 0.1);
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-input {
+            margin-right: 8px;
+        }
+
+        .forgot-password {
+            color: #7f5af0;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4299e1, #7f5af0);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(127, 90, 240, 0.2);
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 24px;
+            color: #7f5af0;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .signup-link a {
+            color: #7f5af0;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1 class="login-title">Welcome </h1>
+            <div id="roleBadge" class="role-badge student">Student Portal</div>
+        </div>
+
+        <form action="/login" method="POST">
+            <input type="hidden" id="roleInput" name="role" value="student">
+            
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input class="form-input" type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input class="form-input" type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-footer">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember" class="checkbox-input">
+                    <label for="remember">Remember me</label>
+                </div>
+                <a href="/forgot-password" class="forgot-password">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="login-button">Login </button>
+        </form>
+
+        <a href="/" class="back-link">← Back to Role Selection</a>
+
+        <div class="signup-link">
+            Don't have an account?<a href="/signup">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+        // Get the role from URL parameters
+        function getRoleFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('role') || 'student';
+        }
+
+        // Update the role badge and hidden input based on URL parameter
+        function updateRoleDisplay() {
+            const role = getRoleFromURL();
+            const roleBadge = document.getElementById('roleBadge');
+            const roleInput = document.getElementById('roleInput');
+            
+            // Remove all existing role classes
+            roleBadge.classList.remove('admin', 'faculty', 'student');
+            
+            // Add the appropriate class and text based on role
+            switch(role.toLowerCase()) {
+                case 'admin':
+                    roleBadge.classList.add('admin');
+                    roleBadge.textContent = 'Admin Portal';
+                    roleInput.value = 'admin';
+                    break;
+                case 'faculty':
+                    roleBadge.classList.add('faculty');
+                    roleBadge.textContent = 'Faculty Portal';
+                    roleInput.value = 'faculty';
+                    break;
+                case 'student':
+                default:
+                    roleBadge.classList.add('student');
+                    roleBadge.textContent = 'Student Portal';
+                    roleInput.value = 'student';
+                    break;
+            }
+        }
+
+        // Initialize the role display when page loads
+        document.addEventListener('DOMContentLoaded', updateRoleDisplay);
+    </script>
+</body>
+</html>

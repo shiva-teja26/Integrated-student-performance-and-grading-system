@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+    .card-shadow:hover { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-8 h-8 bg-blue-600 text-white rounded flex items-center justify-center">
+          <i class="fas fa-shield-alt text-sm"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-semibold text-gray-900">Admin Dashboard</h1>
+          <p class="text-xs text-gray-500">Integrated Student Performance and Grading System</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <input type="text" id="searchInput" placeholder="Search students..." 
+               class="hidden sm:block px-3 py-2 border rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+            <span class="text-white font-medium text-sm">{{ username[0]|upper }}</span>
+          </div>
+          <div class="hidden sm:block">
+            <span class="text-sm font-medium text-gray-700">{{ username }}</span>
+            <div class="text-xs text-gray-500">Administrator</div>
+          </div>
+        </div>
+        <button onclick="toggleMenu()" class="md:hidden p-2 text-gray-600">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-sm hidden md:block min-h-screen">
+      <nav class="p-6 space-y-2">
+        <a href="{{ url_for('dashboard') }}" class="flex items-center px-3 py-2 bg-blue-50 text-blue-700 rounded-md font-medium">
+          <i class="fas fa-home w-4 mr-3"></i> Dashboard
+        </a>
+        <a href="{{ url_for('add_student') }}" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">
+          <i class="fas fa-user-plus w-4 mr-3"></i> Add Student
+        </a>
+        <a href="{{ url_for('performance_visualization') }}" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">
+          <i class="fas fa-chart-bar w-4 mr-3"></i> Analytics
+        </a>
+        <a href="{{ url_for('exams') }}" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">
+          <i class="fas fa-file-alt w-4 mr-3"></i> Exams
+        </a>
+        <hr class="my-4">
+        <a href="{{ url_for('logout') }}" class="flex items-center px-3 py-2 text-red-600 hover:bg-red-50 rounded-md">
+          <i class="fas fa-sign-out-alt w-4 mr-3"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-50 hidden md:hidden">
+      <div class="absolute inset-0 bg-black bg-opacity-50" onclick="toggleMenu()"></div>
+      <div class="absolute left-0 top-0 w-64 h-full bg-white shadow-lg">
+        <nav class="p-6 space-y-2">
+          <a href="{{ url_for('dashboard') }}" class="flex items-center px-3 py-2 bg-blue-50 text-blue-700 rounded-md">
+            <i class="fas fa-home w-4 mr-3"></i> Dashboard
+          </a>
+          <a href="{{ url_for('add_student') }}" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">
+            <i class="fas fa-user-plus w-4 mr-3"></i> Add Student
+          </a>
+          <a href="{{ url_for('performance_visualization') }}" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">
+            <i class="fas fa-chart-bar w-4 mr-3"></i> Analytics
+          </a>
+          <a href="{{ url_for('exams') }}" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">
+            <i class="fas fa-file-alt w-4 mr-3"></i> Exams
+          </a>
+          <hr class="my-4">
+          <a href="{{ url_for('logout') }}" class="flex items-center px-3 py-2 text-red-600 hover:bg-red-50 rounded-md">
+            <i class="fas fa-sign-out-alt w-4 mr-3"></i> Logout
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="mb-4 p-3 rounded-md {{ 'bg-green-50 text-green-800 border border-green-200' if category == 'success' else 'bg-red-50 text-red-800 border border-red-200' }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg card-shadow">
+          <div class="flex items-center">
+            <div class="p-2 bg-blue-100 rounded-lg">
+              <i class="fas fa-users text-blue-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-500">Total Students</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ students|length }}</h3>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg card-shadow">
+          <div class="flex items-center">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <i class="fas fa-chart-line text-green-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-500">Average CGPA</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ (students|sum(attribute='cgpa') / students|length)|round(2) if students else '0.00' }}</h3>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg card-shadow">
+          <div class="flex items-center">
+            <div class="p-2 bg-purple-100 rounded-lg">
+              <i class="fas fa-book text-purple-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-500">Active Courses</p>
+              <h3 class="text-2xl font-bold text-gray-900">12</h3>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg card-shadow">
+          <div class="flex items-center">
+            <div class="p-2 bg-orange-100 rounded-lg">
+              <i class="fas fa-calendar text-orange-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-500">Upcoming Exams</p>
+              <h3 class="text-2xl font-bold text-gray-900">3</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Buttons -->
+      <div class="flex flex-wrap gap-3 mb-6">
+        <button onclick="filterStudents('all')" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium">All Students</button>
+        <button onclick="filterStudents('top')" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">Top Performers</button>
+        <button onclick="filterStudents('attention')" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium">Need Attention</button>
+        <a href="{{ url_for('performance_visualization') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">Generate Reports</a>
+      </div>
+
+      <!-- Student Records -->
+      <div class="bg-white rounded-lg card-shadow">
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900">Student Records</h2>
+            <a href="{{ url_for('add_student') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">
+              <i class="fas fa-plus mr-2"></i>Add Student
+            </a>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          {% if students %}
+            <div id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {% for student in students %}
+              <div class="student-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow" 
+                   data-name="{{ student.name.lower() }}" 
+                   data-roll="{{ student.roll }}"
+                   data-cgpa="{{ student.cgpa }}"
+                   data-backlogs="{{ student.backlogs if student.backlogs else 0 }}">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 {{ 'bg-green-500' if student.cgpa >= 70 else 'bg-yellow-500' if student.cgpa >= 50 else 'bg-red-500' }} rounded-full flex items-center justify-center text-white text-sm font-medium">
+                      {{ student.cgpa }}
+                    </div>
+                    <div>
+                      <h3 class="font-medium text-gray-900">{{ student.name }}</h3>
+                      <p class="text-sm text-gray-500">{{ student.roll }}</p>
+                    </div>
+                  </div>
+                  {% if student.backlogs and student.backlogs > 0 %}
+                  <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">{{ student.backlogs }} backlogs</span>
+                  {% endif %}
+                </div>
+                
+                {% if student.sgpas %}
+                <div class="mb-3">
+                  <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Semester Progress</span>
+                    <span>{{ student.sgpas|length }} semesters</span>
+                  </div>
+                  <div class="flex space-x-1">
+                    {% for semester, sgpa in student.sgpas.items() %}
+                    <div class="flex-1 h-2 {{ 'bg-green-400' if sgpa >= 70 else 'bg-yellow-400' if sgpa >= 50 else 'bg-red-400' }} rounded-full" title="Sem {{ semester }}: {{ sgpa }}"></div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endif %}
+                
+                <div class="flex justify-between items-center pt-3 border-t border-gray-100">
+                  <span class="text-sm text-gray-500">CGPA: {{ student.cgpa }}%</span>
+                  <div class="flex space-x-2">
+                    <a href="{{ url_for('edit_student', roll=student.roll) }}" class="text-blue-600 hover:text-blue-800 text-sm">Edit</a>
+                    <a href="{{ url_for('delete_student', roll=student.roll) }}" onclick="return confirm('Delete this student?')" class="text-red-600 hover:text-red-800 text-sm">Delete</a>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-12">
+              <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+              <p class="text-gray-500 mb-4">No student records available</p>
+              <a href="{{ url_for('add_student') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Add First Student</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    }
+    
+    function filterStudents(type) {
+      const cards = document.querySelectorAll('.student-card');
+      cards.forEach(card => {
+        const cgpa = parseFloat(card.dataset.cgpa);
+        const backlogs = parseInt(card.dataset.backlogs);
+        let show = true;
+        
+        if (type === 'top') show = cgpa >= 75;
+        else if (type === 'attention') show = backlogs > 0 || cgpa < 50;
+        
+        card.style.display = show ? 'block' : 'none';
+      });
+    }
+
+    document.getElementById('searchInput')?.addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      document.querySelectorAll('.student-card').forEach(card => {
+        const matches = card.dataset.name.includes(searchTerm) || card.dataset.roll.includes(searchTerm);
+        card.style.display = matches ? 'block' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

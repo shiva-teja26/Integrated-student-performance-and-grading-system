@@ -1,0 +1,59 @@
+<!-- templates/exams.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exams</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-sans">
+
+    <div class="max-w-7xl mx-auto py-12 px-6">
+        <!-- Header Section -->
+        <h1 class="text-4xl font-bold text-center mb-8 text-yellow-100">Upcoming Exams 📅</h1>
+
+        <!-- Only show form to admin/teacher -->
+        {% if role in ['admin', 'teacher'] %}
+        <div class="bg-white text-gray-900 p-8 rounded-xl shadow-lg mb-10">
+            <form action="{{ url_for('exams') }}" method="POST">
+                <h2 class="text-3xl font-semibold text-blue-600 mb-6">Add a New Exam</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-lg font-medium mb-2" for="subject">Subject</label>
+                        <input type="text" name="subject" id="subject" required class="w-full p-3 border-2 border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label class="block text-lg font-medium mb-2" for="date">Exam Date</label>
+                        <input type="date" name="date" id="date" required class="w-full p-3 border-2 border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label class="block text-lg font-medium mb-2" for="description">Description</label>
+                        <textarea name="description" id="description" rows="4" class="w-full p-3 border-2 border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none">Add Exam</button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Exams List -->
+        <div>
+            {% if exams %}
+            <ul class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for exam in exams %}
+                <li class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300">
+                    <p class="text-xl font-semibold text-gray-800">Subject: <span class="text-blue-500">{{ exam.subject }}</span></p>
+                    <p class="text-md text-gray-600 mt-2"><strong>Date:</strong> {{ exam.date }}</p>
+                    <p class="text-md text-gray-600 mt-2"><strong>Description:</strong> {{ exam.description or 'No description provided.' }}</p>
+                    <p class="text-sm text-gray-500 mt-4">Added on: {{ exam.date }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-lg text-gray-200">No exams scheduled yet. Check back later!</p>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

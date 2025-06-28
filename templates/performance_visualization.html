@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Visualization | ISPGS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass { background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.3); }
+        .animate-in { animation: slideIn 0.6s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .hover-lift:hover { transform: translateY(-4px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50 border-b border-white/20">
+        <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-line text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800">ISPGS</h1>
+            </div>
+            <div class="flex items-center bg-green-50 px-4 py-2 rounded-full border border-green-200">
+                <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <span class="text-sm font-medium text-gray-700">{{ username|default('User') }} <span class="text-green-600">({{ role|default('Teacher')|capitalize }})</span></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto p-6 space-y-6">
+        <!-- Title -->
+        <div class="text-center animate-in">
+            <h1 class="text-4xl font-bold text-white mb-2">Performance Analytics</h1>
+            <p class="text-lg text-white/80">Student performance insights</p>
+        </div>
+
+        <!-- Search Card -->
+        {% if not graph_url %}
+        <div class="max-w-md mx-auto glass rounded-2xl shadow-xl animate-in hover-lift">
+            <div class="p-6">
+                <div class="text-center mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-search text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Student Lookup</h3>
+                </div>
+                <form method="POST" action="{{ url_for('performance_visualization') }}" class="space-y-3">
+                    <div class="relative">
+                        <i class="fas fa-id-card absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="number" name="roll" placeholder="Enter roll number" required
+                               class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors" />
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
+                        <i class="fas fa-chart-bar mr-2"></i>Analyze Performance
+                    </button>
+                </form>
+            </div>
+            <div class="bg-gray-50/80 p-3 text-center border-t border-gray-200/50 rounded-b-2xl">
+                <a href="{{ url_for('dashboard') }}" class="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Results Section -->
+        {% if graph_url and student %}
+        <div class="space-y-4 animate-in">
+            <!-- Student Info Card -->
+            <div class="glass rounded-2xl shadow-xl hover-lift">
+                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 rounded-t-2xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                            <span class="text-xl font-bold text-white">{{ student|upper|first }}</span>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-white">{{ student }}</h2>
+                            <p class="text-indigo-100 text-sm">Roll: {{ request.form.get('roll', 'N/A') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Chart -->
+            <div class="glass rounded-2xl shadow-xl hover-lift">
+                <div class="bg-gradient-to-r from-slate-50 to-blue-50 p-4 border-b border-gray-200/50 rounded-t-2xl">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-chart-bar text-indigo-600 mr-2"></i>
+                        Performance Chart
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="bg-white rounded-xl p-4 shadow-inner">
+                        <img src="data:image/png;base64,{{ graph_url }}" alt="Performance Chart" class="w-full h-auto max-w-2xl mx-auto rounded-lg">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- New Search Button -->
+            <div class="text-center">
+                <a href="{{ url_for('performance_visualization') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
+                    <i class="fas fa-search mr-2"></i>Search Another Student
+                </a>
+            </div>
+        </div>
+        {% elif request.method == 'POST' %}
+        <div class="max-w-md mx-auto glass rounded-2xl shadow-xl p-6 text-center animate-in">
+            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-exclamation-triangle text-red-500"></i>
+            </div>
+            <h3 class="text-lg font-bold text-red-800 mb-2">Student Not Found</h3>
+            <p class="text-red-600 text-sm mb-4">No records found for roll number {{ request.form.get('roll') }}</p>
+            <a href="{{ url_for('performance_visualization') }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Try Again</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="glass mt-12 border-t border-white/20">
+        <div class="max-w-6xl mx-auto px-6 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-gray-600">© 2025 ISPGS. All rights reserved.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="text-gray-500 hover:text-indigo-600 transition-colors"><i class="fas fa-question-circle"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-indigo-600 transition-colors"><i class="fas fa-cog"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-indigo-600 transition-colors"><i class="fas fa-shield-alt"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

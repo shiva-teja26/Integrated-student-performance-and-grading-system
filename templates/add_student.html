@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Student | ISPGS</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8', 
+              500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e',
+            },
+          },
+          fontFamily: { sans: ['Inter var', 'sans-serif'] },
+        }
+      },
+      darkMode: 'class',
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+    .slide-in { animation: slideIn 0.3s ease-out forwards; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .sidebar-link { transition: all 0.2s ease; }
+    .sidebar-link:hover { transform: translateX(5px); }
+    .form-input:focus { box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2); }
+    .form-input::placeholder { color: #9ca3af; }
+    .form-label { transition: all 0.2s ease; }
+    .form-group:focus-within .form-label { color: #0284c7; }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+    .subject-row { transition: all 0.2s ease; }
+    .subject-row:hover { background-color: #f9fafb; }
+    .dark .subject-row:hover { background-color: #374151; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+  <!-- Header -->
+  <header class="sticky top-0 bg-white dark:bg-gray-800 shadow-sm z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-3 sm:px-6 lg:px-8">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-200 rounded-lg">
+          <i class="fas fa-graduation-cap text-xl"></i>
+        </div>
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white">ISPGS</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center bg-primary-50 dark:bg-gray-700 px-3 py-1.5 rounded-full">
+          <span class="mr-2 w-2 h-2 bg-green-500 rounded-full"></span>
+          <p class="text-sm dark:text-gray-200">Logged in as <span class="font-semibold">{{ username }}</span> <span class="text-xs text-gray-500 dark:text-gray-400">({{ role|capitalize }})</span></p>
+        </div>
+        <button id="darkModeToggle" class="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:block"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white dark:bg-gray-800 shadow-md pt-6 pb-8 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="px-4 mb-6">
+        <div class="h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center mx-auto">
+          <span class="text-primary-700 dark:text-primary-200 font-bold text-lg">{{ username[0]|upper }}</span>
+        </div>
+        <p class="text-center mt-2 font-medium dark:text-gray-300">{{ role|capitalize }}</p>
+      </div>
+      <nav class="mt-6 px-4">
+        <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Main Menu</p>
+        <div class="space-y-1">
+          <a href="{{ url_for('dashboard') }}" class="sidebar-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <i class="fas fa-home w-5 mr-3"></i> Home
+          </a>
+          <a href="{{ url_for('add_student') }}" class="sidebar-link flex items-center px-3 py-2.5 rounded-lg bg-primary-50 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 font-medium">
+            <i class="fas fa-user-plus w-5 mr-3"></i> Add Student
+          </a>
+          <a href="{{ url_for('performance_visualization') }}" class="sidebar-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <i class="fas fa-chart-bar w-5 mr-3"></i> Performance
+          </a>
+          <a href="{{ url_for('exams') }}" class="sidebar-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <i class="fas fa-file-alt w-5 mr-3"></i> Exams
+          </a>
+        </div>
+        <hr class="my-6 border-t border-gray-200 dark:border-gray-700">
+        <a href="{{ url_for('logout') }}" class="sidebar-link flex items-center px-3 py-2.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30">
+          <i class="fas fa-sign-out-alt w-5 mr-3"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 pt-6 pb-10 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="mb-5 p-4 rounded-md slide-in {{ 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/30 dark:text-green-200 dark:border-green-800' if category == 'success' else 'bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-800' if category == 'warning' else 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/30 dark:text-red-200 dark:border-red-800' }}">
+              <div class="flex items-center">
+                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' if category == 'warning' else 'fa-times-circle' }} mr-2"></i>
+                <div>{{ message }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+            <i class="fas fa-user-plus mr-3 text-primary-600 dark:text-primary-400"></i> Add New Student
+          </h2>
+          <a href="{{ url_for('dashboard') }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900">
+            <i class="fas fa-arrow-left mr-1.5"></i> Back to Dashboard
+          </a>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden card-hover">
+          <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Student Information</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Enter the details of the new student below</p>
+          </div>
+          
+          <form method="POST" action="{{ url_for('add_student') }}" class="px-6 py-5 space-y-6">
+            <!-- Basic Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="form-group">
+                <label for="name" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name <span class="text-red-500">*</span></label>
+                <input type="text" id="name" name="name" class="form-input block w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" placeholder="Enter student's full name" required>
+              </div>
+              <div class="form-group">
+                <label for="roll" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Roll Number <span class="text-red-500">*</span></label>
+                <input type="number" id="roll" name="roll" class="form-input block w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" placeholder="Enter unique roll number" required>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="form-group">
+                <label for="gender" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender <span class="text-red-500">*</span></label>
+                <select id="gender" name="gender" class="form-input block w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" required>
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="semester" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Semester <span class="text-red-500">*</span></label>
+                <select id="semester" name="semester" class="form-input block w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" onchange="displaySemesterBlock()" required>
+                  <option value="">-- Select Semester --</option>
+                  {% for sem in ['1-1', '1-2', '2-1', '2-2', '3-1', '3-2', '4-1', '4-2'] %}
+                    <option value="{{ sem }}">Semester {{ sem }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            
+            <!-- Subjects Section -->
+            <div id="semester-block" class="bg-gray-50 dark:bg-gray-750 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-5 hidden slide-in">
+              <div class="flex items-center justify-between">
+                <h4 class="text-md font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                  <i class="fas fa-book-open mr-2 text-primary-600 dark:text-primary-400"></i>
+                  Subjects for Semester <span id="selected-semester-label" class="font-semibold text-primary-700 dark:text-primary-300 ml-1"></span>
+                </h4>
+                <button type="button" onclick="addSubject()" class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900">
+                  <i class="fas fa-plus mr-1.5"></i> Add Subject
+                </button>
+              </div>
+              <div id="subjects-container" class="space-y-3"></div>
+              <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-3 text-sm text-yellow-800 dark:text-yellow-200">
+                <div class="flex">
+                  <i class="fas fa-info-circle mt-0.5 mr-2 flex-shrink-0"></i>
+                  <p>Add all the subjects for this semester. For each subject, provide the name and marks (0-100).</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex items-center pt-5 border-t border-gray-200 dark:border-gray-700">
+              <button type="submit" class="w-full md:w-auto px-6 py-3 bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 focus:ring-offset-primary-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg">
+                <i class="fas fa-user-plus mr-2"></i> Add Student
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <p class="text-sm text-gray-500 dark:text-gray-400">© 2025 Integrated Student Performance and Grading System (ISPGS). All rights reserved.</p>
+        <div class="flex space-x-6 mt-4 md:mt-0">
+          <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"><i class="fas fa-question-circle"></i></a>
+          <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"><i class="fas fa-cog"></i></a>
+          <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"><i class="fas fa-shield-alt"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Dark mode
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) document.documentElement.classList.add('dark');
+    
+    document.getElementById('darkModeToggle').addEventListener('click', function() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+    });
+    
+    // Subject management
+    function displaySemesterBlock() {
+      const semester = document.getElementById("semester").value;
+      document.getElementById("selected-semester-label").textContent = semester;
+      const block = document.getElementById("semester-block");
+      const container = document.getElementById("subjects-container");
+      
+      if (semester) {
+        block.classList.remove("hidden");
+        container.innerHTML = '';
+        addSubject();
+      } else {
+        block.classList.add("hidden");
+      }
+    }
+    
+    function addSubject() {
+      const container = document.getElementById("subjects-container");
+      const index = container.children.length;
+      
+      const subjectRow = document.createElement("div");
+      subjectRow.className = "subject-row flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800";
+      subjectRow.innerHTML = `
+        <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">${index + 1}</div>
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div class="md:col-span-3">
+            <input type="text" name="subjects[]" placeholder="Subject Name" class="form-input w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white" required>
+          </div>
+          <div class="md:col-span-2">
+            <div class="flex items-center space-x-2">
+              <input type="number" name="marks[]" placeholder="Marks" class="form-input w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white" min="0" max="100" required>
+              <button type="button" onclick="removeSubject(this)" class="flex-shrink-0 p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 focus:outline-none">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      container.appendChild(subjectRow);
+      setTimeout(() => subjectRow.classList.add('slide-in'), 10);
+    }
+    
+    function removeSubject(button) {
+      const row = button.closest('.subject-row');
+      row.classList.add('opacity-50');
+      setTimeout(() => {
+        row.remove();
+        // Renumber rows
+        const container = document.getElementById("subjects-container");
+        const rows = container.querySelectorAll('.subject-row');
+        rows.forEach((row, index) => {
+          row.querySelector('.flex-shrink-0').textContent = index + 1;
+        });
+      }, 300);
+    }
+  </script>
+</body>
+</html>

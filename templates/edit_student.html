@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .glass { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.1); }
+        .dark .glass { background: rgba(0, 0, 0, 0.2); }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 transition-all duration-300">
+    
+    <!-- Header -->
+    <header class="glass border-b border-white/20 dark:border-gray-700/50 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Edit Student Profile
+            </h1>
+            <div class="flex gap-3">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+                    <span class="text-xl">🌙</span>
+                </button>
+                <a href="{{ url_for('dashboard') }}" class="px-4 py-2 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto p-6 animate-fade-in">
+        <form method="POST" action="{{ url_for('edit_student', roll=student.roll) }}" class="space-y-6">
+            
+            <!-- Basic Information Card -->
+            <div class="glass rounded-2xl p-6 border border-white/20 dark:border-gray-700/50 animate-slide-up">
+                <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <span class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">👤</span>
+                    Basic Information
+                </h2>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                        <input name="name" value="{{ student.name }}" 
+                               class="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Roll Number</label>
+                        <input type="number" name="roll" value="{{ student.roll }}" 
+                               class="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Gender</label>
+                        <select name="gender" class="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none" required>
+                            <option value="Male" {% if student.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if student.gender == 'Female' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Records Card -->
+            <div class="glass rounded-2xl p-6 border border-white/20 dark:border-gray-700/50 animate-slide-up">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold flex items-center gap-2">
+                        <span class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">📚</span>
+                        Academic Records
+                    </h2>
+                    <div class="flex gap-3">
+                        <select id="semesterSelect" class="px-4 py-2 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 text-sm">
+                            {% for sem in ['1-1', '1-2', '2-1', '2-2', '3-1', '3-2', '4-1', '4-2'] %}
+                                <option value="{{ sem }}">Semester {{ sem }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" onclick="addSubject()" class="px-4 py-2 bg-green-500/20 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-500/30 transition-colors text-sm font-medium">
+                            + Add Subject
+                        </button>
+                    </div>
+                </div>
+
+                <div id="subjectFields" class="space-y-4">
+                    {% for semester, subjects_marks in semesters.items() %}
+                        <div class="semester-group space-y-3" id="semester-{{ semester }}">
+                            <div class="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                                <span class="px-3 py-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium">
+                                    Semester {{ semester }}
+                                </span>
+                            </div>
+                            {% for subject, marks in subjects_marks.items() %}
+                                <div class="flex gap-3 items-center p-3 bg-white/30 dark:bg-gray-800/30 rounded-lg">
+                                    <input type="text" name="dynamic_subjects[{{ semester }}][]" value="{{ subject }}" placeholder="Subject Name" 
+                                           class="flex-1 px-3 py-2 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all outline-none text-sm" required>
+                                    <input type="number" name="dynamic_marks[{{ semester }}][]" value="{{ marks }}" placeholder="Marks" min="0" max="100"
+                                           class="w-24 px-3 py-2 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all outline-none text-sm" required>
+                                    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                                        ✕
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4 justify-end pt-4">
+                <a href="{{ url_for('dashboard') }}" class="px-6 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-500/10 rounded-xl transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium">
+                    💾 Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+
+        function addSubject() {
+            const container = document.getElementById('subjectFields');
+            const semester = document.getElementById('semesterSelect').value;
+            
+            let semesterGroup = document.getElementById(`semester-${semester}`);
+            if (!semesterGroup) {
+                semesterGroup = document.createElement('div');
+                semesterGroup.className = 'semester-group space-y-3';
+                semesterGroup.id = `semester-${semester}`;
+                semesterGroup.innerHTML = `
+                    <div class="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                        <span class="px-3 py-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium">
+                            Semester ${semester}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(semesterGroup);
+            }
+
+            const subjectDiv = document.createElement('div');
+            subjectDiv.className = 'flex gap-3 items-center p-3 bg-white/30 dark:bg-gray-800/30 rounded-lg animate-slide-up';
+            subjectDiv.innerHTML = `
+                <input type="text" name="dynamic_subjects[${semester}][]" placeholder="Subject Name" 
+                       class="flex-1 px-3 py-2 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all outline-none text-sm" required>
+                <input type="number" name="dynamic_marks[${semester}][]" placeholder="Marks" min="0" max="100"
+                       class="w-24 px-3 py-2 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all outline-none text-sm" required>
+                <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">✕</button>
+            `;
+            semesterGroup.appendChild(subjectDiv);
+        }
+
+        // Initialize dark mode
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</body>
+</html>
