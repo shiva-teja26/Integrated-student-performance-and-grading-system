@@ -1,2 +1,0 @@
-# Integrated-Student-Performance-and-Grading-System
-Our project proposes a method of fetching product data from e-commerce website and give the details such as product title, price, rating, discount of n number of categorised products.It is designed using Graphical User Interface(GUI) to interact with users what products do they want to fetch.The data is stored in a structured format in a database.
